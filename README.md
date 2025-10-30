@@ -1,1 +1,1 @@
-# fort-cosmetcs
+# fort-cosmetics
