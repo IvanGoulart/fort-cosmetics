@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    container_name: fortsync_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/var/www
+    depends_on:
+      - db
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: fortsync
+      DB_USERNAME: fortuser
+      DB_PASSWORD: fortpass
+
+  db:
+    image: mysql:8.0
+    container_name: fortsync_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: fortsync
+      MYSQL_USER: fortuser
+      MYSQL_PASSWORD: fortpass
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
