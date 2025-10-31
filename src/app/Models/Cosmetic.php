@@ -17,4 +17,11 @@ class Cosmetic extends Model
         'is_shop',
         'release_date',
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_cosmetics')
+                    ->withTimestamps()
+                    ->withPivot('returned');
+    }
 }

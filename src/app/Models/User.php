@@ -17,11 +17,7 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $fillable = ['name', 'email', 'password', 'vbucks'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -44,5 +40,12 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function cosmetics()
+    {
+        return $this->belongsToMany(Cosmetic::class, 'user_cosmetics')
+                    ->withTimestamps()
+                    ->withPivot('returned');
     }
 }

@@ -22,6 +22,12 @@
 
 <!-- Conteúdo principal (centralizado corretamente) -->
 <main class="pt-28 pb-16 bg-gray-50 min-h-screen flex flex-col items-center">
+    @if(session('success'))
+        <div class="bg-green-100 text-green-800 text-sm p-2 rounded mb-4">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="bg-red-100 text-red-800 text-sm p-2 rounded mb-4">{{ session('error') }}</div>
+    @endif
     <!-- Ajuste chave: limite de largura com max-w-7xl e padding interno, e uso de mx-auto para centralizar -->
     <div class="w-full max-w-7xl px-4">
         <h2 class="text-4xl font-extrabold text-center text-gray-800 mb-10">Catálogo de Cosméticos</h2>
@@ -87,6 +93,15 @@
                                    class="inline-block mt-4 bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition duration-200">
                                     Ver detalhes
                                 </a>
+                                @auth
+                                <form method="POST" action="{{ route('buy', $item->id) }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white py-1 px-2 rounded text-sm font-semibold">
+                                        Comprar ({{ $item->price }} V-Bucks)
+                                    </button>
+                                </form>
+                                @endauth
                             </div>
                         </div>
                     @endforeach
@@ -100,8 +115,9 @@
 
         <!-- Paginação -->
         <div class="mt-10 flex justify-center">
-            {{ $cosmetics->links() }}
+           {{ $cosmetics->links('vendor.pagination.tailwind') }}
         </div>
     </div>
 </main>
 @endsection
+cd 
