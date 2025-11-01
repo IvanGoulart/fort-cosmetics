@@ -6,6 +6,7 @@ use App\Http\Controllers\CosmeticController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\TransactionController;
 
 Route::get('/register', [RegisteredUserController::class, 'create'])->middleware('guest')->name('register');
 Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest');
@@ -21,4 +22,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/meus-cosmeticos', [ShopController::class, 'index'])->name('my.cosmetics');
     Route::post('/comprar/{id}', [ShopController::class, 'buy'])->name('buy');
     Route::post('/devolver/{id}', [ShopController::class, 'refund'])->name('refund');
+    Route::get('/historico', [TransactionController::class, 'index'])->name('transactions.index');
 });

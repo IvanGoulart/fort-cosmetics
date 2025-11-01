@@ -4,37 +4,38 @@ namespace App\Http\Controllers;
 
 use App\Models\Cosmetic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\UserCosmetic;
 
 class CosmeticController extends Controller
 {
     /**
      * Exibe uma lista de cosméticos.
      */
-     public function index(Request $request)
+
+    public function index(Request $request)
     {
         $query = Cosmetic::query();
 
-        // Filtro por nome
+        // Filtros (nome, tipo, raridade, etc.)
         if ($request->filled('nome')) {
             $query->where('name', 'like', '%' . $request->nome . '%');
         }
 
-        // Filtro por tipo
-        if ($request->filled('tipo')) {
-            $query->where('type', 'like', '%' . $request->tipo . '%');
-        }
-
-        // Filtro por raridade
-        if ($request->filled('raridade')) {
-            $query->where('rarity', 'like', '%' . $request->raridade . '%');
-        }
-
-        // Paginação
         $cosmetics = $query->paginate(12)->withQueryString();
 
-        return view('cosmetics.index', compact('cosmetics'));
-    }
+        // IDs de cosméticos já adquiridos
+        $ownedCosmetics = [];
+        if (Auth::check()) {
+            $ownedCosmetics = Auth::user()
+                ->cosmetics()
+                ->where('returned', false)
+                ->pluck('cosmetic_id')
+                ->toArray();
+        }
 
+        return view('cosmetics.index', compact('cosmetics', 'ownedCosmetics'));
+    }
     /**
      * Mostra o formulário de criação (caso use Blade).
      */
@@ -70,10 +71,27 @@ class CosmeticController extends Controller
     /**
      * Exibe um cosmético específico.
      */
+
     public function show($id)
     {
         $cosmetic = Cosmetic::findOrFail($id);
-        return view('cosmetics.show', compact('cosmetic'));
+
+        $owned = false;
+        $returned = false;
+
+        if (Auth::check()) {
+            $pivot = Auth::user()
+                ->cosmetics()
+                ->where('cosmetic_id', $id)
+                ->first();
+
+            if ($pivot) {
+                $owned = !$pivot->pivot->returned;
+                $returned = $pivot->pivot->returned;
+            }
+        }
+
+        return view('cosmetics.show', compact('cosmetic', 'owned', 'returned'));
     }
 
     /**

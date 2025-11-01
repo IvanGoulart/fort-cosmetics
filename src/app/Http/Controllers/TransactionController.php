@@ -2,31 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Cosmetic;
-use App\Models\UserCosmetic;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Transaction;
+use App\Models\Cosmetic;
 
-class ShopController extends Controller
+
+class TransactionController extends Controller
 {
-    /**
-     * Exibe os cosméticos que o usuário possui
-     */
-
     public function index()
     {
-        $user = Auth::user();
+        $transactions = Transaction::where('user_id', Auth::id())
+            ->with('cosmetic')
+            ->orderByDesc('executed_at')
+            ->paginate(10);
 
-        $purchases = $user->cosmetics()
-            ->wherePivot('returned', false)
-            ->get();
-
-        return view('shop.my_cosmetics', compact('purchases'));
+        return view('transactions.index', compact('transactions'));
     }
 
-    /**
-     * Comprar um cosmético
-     */
     public function buy($id)
     {
         $user = Auth::user();
@@ -46,14 +38,21 @@ class ShopController extends Controller
         $user->vbucks -= $cosmetic->price;
         $user->save();
 
+        // Marca como comprado
         $user->cosmetics()->attach($id, ['returned' => false]);
+
+        // 🔥 Grava transação
+        Transaction::create([
+            'user_id' => $user->id,
+            'cosmetic_id' => $cosmetic->id,
+            'type' => 'compra',
+            'amount' => $cosmetic->price,
+            'executed_at' => now(),
+        ]);
 
         return back()->with('success', 'Item comprado com sucesso!');
     }
 
-    /**
-     * Devolver um cosmético
-     */
     public function refund($id)
     {
         $user = Auth::user();
@@ -72,6 +71,16 @@ class ShopController extends Controller
         $user->vbucks += $cosmetic->price;
         $user->save();
 
+        // 🔥 Grava transação
+        Transaction::create([
+            'user_id' => $user->id,
+            'cosmetic_id' => $cosmetic->id,
+            'type' => 'devolucao',
+            'amount' => $cosmetic->price,
+            'executed_at' => now(),
+        ]);
+
         return back()->with('success', 'Item devolvido e créditos reembolsados!');
     }
+
 }
