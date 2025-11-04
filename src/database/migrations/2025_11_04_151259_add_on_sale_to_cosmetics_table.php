@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('transactions', function (Blueprint $table) {
-            $table->foreignId('user_id')->after('id')->constrained()->onDelete('cascade');
+        Schema::table('cosmetics', function (Blueprint $table) {
+            $table->boolean('on_sale')->default(false)->after('is_shop');
         });
     }
 
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('transactions', function (Blueprint $table) {
+        Schema::table('cosmetics', function (Blueprint $table) {
             //
         });
     }

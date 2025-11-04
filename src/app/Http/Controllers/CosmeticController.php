@@ -13,29 +13,43 @@ class CosmeticController extends Controller
      * Exibe uma lista de cosméticos.
      */
 
-    public function index(Request $request)
-    {
-        $query = Cosmetic::query();
+public function index()
+{
+    $query = \App\Models\Cosmetic::query();
 
-        // Filtros (nome, tipo, raridade, etc.)
-        if ($request->filled('nome')) {
-            $query->where('name', 'like', '%' . $request->nome . '%');
-        }
+    // Filtro por tipo
+    $filter = request('filter');
 
-        $cosmetics = $query->paginate(12)->withQueryString();
+    switch ($filter) {
+        case 'novo':
+            $query->where('is_new', true);
+            break;
 
-        // IDs de cosméticos já adquiridos
-        $ownedCosmetics = [];
-        if (Auth::check()) {
-            $ownedCosmetics = Auth::user()
-                ->cosmetics()
-                ->where('returned', false)
-                ->pluck('cosmetic_id')
-                ->toArray();
-        }
+        case 'promocao':
+            $query->whereColumn('price', '<', 'regular_price');
+            break;
 
-        return view('cosmetics.index', compact('cosmetics', 'ownedCosmetics'));
+        case 'bundle':
+            $query->where('type', 'bundle');
+            break;
+
+        case 'loja':
+            $query->where('is_shop', true);
+            break;
     }
+
+    // Ordenação padrão (nome)
+    $cosmetics = $query->orderBy('name')->paginate(12);
+
+    // Cosméticos já adquiridos
+    $ownedCosmetics = auth()->check()
+        ? auth()->user()->cosmetics()->pluck('cosmetic_id')->toArray()
+        : [];
+
+    return view('cosmetics.index', compact('cosmetics', 'ownedCosmetics', 'filter'));
+}
+
+
     /**
      * Mostra o formulário de criação (caso use Blade).
      */

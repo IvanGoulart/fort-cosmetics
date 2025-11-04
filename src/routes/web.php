@@ -24,3 +24,5 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/devolver/{id}', [ShopController::class, 'refund'])->name('refund');
     Route::get('/historico', [TransactionController::class, 'index'])->name('transactions.index');
 });
+
+

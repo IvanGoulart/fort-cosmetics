@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Cosmetic;
-use App\Models\UserCosmetic;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 
 class ShopController extends Controller
@@ -29,8 +28,17 @@ class ShopController extends Controller
      */
     public function buy($id)
     {
+
         $user = Auth::user();
         $cosmetic = Cosmetic::findOrFail($id);
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'cosmetic_id' => $cosmetic->id,
+            'type' => 'compra',
+            'amount' => $cosmetic->price,
+            'executed_at' => now(),
+        ]);
 
         // Já possui?
         if ($user->cosmetics()->where('cosmetic_id', $id)->where('returned', false)->exists()) {
@@ -71,6 +79,14 @@ class ShopController extends Controller
         // Credita novamente
         $user->vbucks += $cosmetic->price;
         $user->save();
+
+        Transaction::create([
+            'user_id' => $user->id,
+            'cosmetic_id' => $cosmetic->id,
+            'type' => 'devolução',
+            'amount' => $cosmetic->price,
+            'executed_at' => now(),
+        ]);
 
         return back()->with('success', 'Item devolvido e créditos reembolsados!');
     }
