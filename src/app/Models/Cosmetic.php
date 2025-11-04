@@ -16,6 +16,7 @@ class Cosmetic extends Model
         'is_new',
         'is_shop',
         'release_date',
+        'bundle_id'
     ];
 
     public function users()

@@ -40,8 +40,27 @@ class SyncShopCosmetics extends Command
         $count = 0;
 
         foreach ($entries as $entry) {
+
+            // 🔍 DEBUG: mostrar estrutura da primeira entrada apenas
+            if ($count === 0) {
+                $this->line("\n📦 DEBUG: Estrutura da primeira entrada recebida da loja ↓↓↓\n");
+                dump([
+                    'offerId' => $entry['offerId'] ?? null,
+                    'tem_bundle' => isset($entry['bundle']),
+                    'bundle' => $entry['bundle']['name'] ?? null,
+                    'possui_brItems' => isset($entry['brItems']),
+                    'possui_cars' => isset($entry['cars']),
+                    'possui_tracks' => isset($entry['tracks']),
+                    'possui_instruments' => isset($entry['instruments']),
+                    'chaves' => array_keys($entry),
+                ]);
+                $this->line("\n---------------------------------------------\n");
+            }
+
             // --- 🎁 Trata BUNDLES ---
             if (isset($entry['bundle'])) {
+                $this->info("➡️ Processando bundle: " . ($entry['bundle']['name'] ?? 'sem nome'));
+
                 $bundle = Cosmetic::updateOrCreate(
                     ['api_id' => $entry['offerId']],
                     [
@@ -61,21 +80,31 @@ class SyncShopCosmetics extends Command
 
                 $count++;
 
-                // 🧩 Adiciona itens dentro do bundle (cars, tracks, etc.)
-                $bundleItems = $entry['cars'] ?? $entry['tracks'] ?? $entry['instruments'] ?? [];
+                // 🧩 Adiciona itens dentro do bundle (brItems, cars, tracks, instruments)
+                $bundleItems = $entry['brItems']
+                    ?? $entry['cars']
+                    ?? $entry['tracks']
+                    ?? $entry['instruments']
+                    ?? [];
 
                 foreach ($bundleItems as $item) {
+                    if (empty($item['id'])) continue;
+
+                    $image = $item['images']['icon']
+                        ?? $item['images']['small']
+                        ?? $item['images']['large']
+                        ?? ($entry['newDisplayAsset']['renderImages'][0]['image'] ?? null);
+
                     Cosmetic::updateOrCreate(
                         ['api_id' => $item['id']],
                         [
                             'name' => $item['name'] ?? 'Sem nome',
                             'type' => $item['type']['value'] ?? 'cosmetic',
                             'rarity' => $item['rarity']['value'] ?? null,
-                            'bundle_id' => $bundle->id,
-                            'price' => 0, // item faz parte do bundle, sem custo direto
-                            'image' => $item['images']['small']
-                                ?? $item['images']['large']
-                                ?? null,
+                            'bundle_id' => $bundle->id, // ✅ relacionamento
+                            'price' => 0,
+                            'regular_price' => 0,
+                            'image' => $image,
                             'is_shop' => true,
                             'is_new' => false,
                             'release_date' => isset($item['added'])
@@ -87,11 +116,15 @@ class SyncShopCosmetics extends Command
                     $count++;
                 }
 
-                continue;
+                continue; // pula o resto do loop
             }
 
             // --- 🎨 Itens individuais (fora de bundles) ---
-            $cosmetics = $entry['brItems'] ?? $entry['cars'] ?? $entry['tracks'] ?? $entry['instruments'] ?? null;
+            $cosmetics = $entry['brItems']
+                ?? $entry['cars']
+                ?? $entry['tracks']
+                ?? $entry['instruments']
+                ?? null;
 
             if (!$cosmetics) {
                 $this->warn('⚠️ Entrada sem cosméticos reconhecíveis ignorada.');
@@ -99,6 +132,13 @@ class SyncShopCosmetics extends Command
             }
 
             foreach ($cosmetics as $item) {
+                if (empty($item['id'])) continue;
+
+                $image = $item['images']['icon']
+                    ?? $item['images']['small']
+                    ?? $item['images']['large']
+                    ?? ($entry['newDisplayAsset']['renderImages'][0]['image'] ?? null);
+
                 Cosmetic::updateOrCreate(
                     ['api_id' => $item['id']],
                     [
@@ -107,10 +147,7 @@ class SyncShopCosmetics extends Command
                         'rarity' => $item['rarity']['value'] ?? null,
                         'price' => $entry['finalPrice'] ?? 0,
                         'regular_price' => $entry['regularPrice'] ?? $entry['finalPrice'] ?? 0,
-                        'image' => $item['images']['icon']
-                            ?? $item['images']['small']
-                            ?? $item['images']['large']
-                            ?? ($entry['newDisplayAsset']['renderImages'][0]['image'] ?? null),
+                        'image' => $image,
                         'is_shop' => true,
                         'is_new' => false,
                         'release_date' => isset($entry['inDate'])
@@ -123,6 +160,6 @@ class SyncShopCosmetics extends Command
             }
         }
 
-        $this->info("✅ {$count} cosméticos sincronizados com sucesso (incluindo bundles)!");
+        $this->info("✅ {$count} cosméticos sincronizados com sucesso (incluindo bundles e vínculos)!");
     }
 }
