@@ -31,6 +31,8 @@
                 @endauth
 
                 <li><a href="#" class="hover:text-yellow-300 transition">Sobre</a></li>
+                <li><a href="{{ route('users.index') }}" class="hover:text-yellow-300 transition">👥 Comunidade</a></li>
+
             </ul>
 
             {{-- Ações de usuário --}}

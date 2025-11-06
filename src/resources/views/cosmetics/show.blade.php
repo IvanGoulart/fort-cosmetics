@@ -67,7 +67,7 @@
         @endif
 
         {{-- 🛍️ Botão de compra / status --}}
-        <div class="flex justify-center">
+        <div class="flex justify-center mb-6">
             @auth
                 @if(in_array($cosmetic->id, $ownedCosmetics ?? []))
                     <span class="bg-green-100 text-green-800 text-sm font-semibold px-4 py-2 rounded-full">
@@ -85,6 +85,13 @@
             @else
                 <p class="text-gray-500 italic text-sm">Faça login para comprar este item.</p>
             @endauth
+        </div>
+
+        {{-- 🔙 Botão de voltar --}}
+        <div class="text-center">
+            <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-5 py-2 rounded-md transition">
+            🔙 Voltar ao catálogo
+            </a>
         </div>
     </div>
 </div>

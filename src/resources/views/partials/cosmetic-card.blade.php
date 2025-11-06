@@ -51,6 +51,10 @@
                 <span class="text-gray-400 line-through text-xs ml-2">{{ $item->regular_price }}</span>
             @endif
         </p>
+        <a href="{{ route('cosmetics.show', $item->id) }}"
+            class="inline-block w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 mb-3 rounded-md transition">
+            Ver detalhes
+            </a>
 
         {{-- 🧩 Tooltip de bundle --}}
         @if($item->relationLoaded('items') && $item->items->isNotEmpty())
