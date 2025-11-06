@@ -13,42 +13,54 @@ class CosmeticController extends Controller
      * Exibe uma lista de cosméticos.
      */
 
-public function index()
+public function index(Request $request)
 {
     $query = \App\Models\Cosmetic::query();
 
-    // Filtro por tipo
-    $filter = request('filter');
-
-    switch ($filter) {
-        case 'novo':
-            $query->where('is_new', true);
-            break;
-
-        case 'promocao':
-            $query->whereColumn('price', '<', 'regular_price');
-            break;
-
-        case 'bundle':
-            $query->where('type', 'bundle');
-            break;
-
-        case 'loja':
-            $query->where('is_shop', true);
-            break;
+    // 🔍 Filtros existentes
+    if ($request->filled('name')) {
+        $query->where('name', 'LIKE', '%' . $request->name . '%');
     }
 
-    // Ordenação padrão (nome)
-    $cosmetics = $query->orderBy('name')->paginate(12);
+    if ($request->filled('type')) {
+        $query->where('type', $request->type);
+    }
 
-    // Cosméticos já adquiridos
+    if ($request->filled('rarity')) {
+        $query->where('rarity', $request->rarity);
+    }
+
+    if ($request->boolean('is_new')) {
+        $query->where('is_new', true);
+    }
+
+    if ($request->boolean('is_shop')) {
+        $query->where('is_shop', true);
+    }
+
+    if ($request->boolean('on_sale')) {
+        $query->whereColumn('price', '<', 'regular_price');
+    }
+
+    // 🎁 Novo filtro para Bundles
+    if ($request->boolean('is_bundle')) {
+        $query->where('type', 'bundle');
+    }
+
+    // 🔹 Carrega os itens relacionados (para bundles)
+    $cosmetics = $query
+        ->with('items')
+        ->orderBy('name')
+        ->paginate(12)
+        ->appends($request->query());
+
+    // 🔹 Cosméticos já adquiridos
     $ownedCosmetics = auth()->check()
         ? auth()->user()->cosmetics()->pluck('cosmetic_id')->toArray()
         : [];
 
-    return view('cosmetics.index', compact('cosmetics', 'ownedCosmetics', 'filter'));
+    return view('cosmetics.index', compact('cosmetics', 'ownedCosmetics'));
 }
-
 
     /**
      * Mostra o formulário de criação (caso use Blade).

@@ -16,17 +16,20 @@
         <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
             {{-- Logo --}}
-            <a href="{{ route('cosmetics.index') }}" class="text-2xl font-bold tracking-wide hover:text-yellow-300 transition">
+            <a href="{{ route('cosmetics.index') }}" 
+               class="text-2xl font-bold tracking-wide hover:text-yellow-300 transition">
                 FortCosmetics 🎮
             </a>
 
             {{-- Links de navegação --}}
             <ul class="flex items-center gap-6">
                 <li><a href="{{ route('cosmetics.index') }}" class="hover:text-yellow-300 transition">Início</a></li>
+
                 @auth
                     <li><a href="{{ route('my.cosmetics') }}" class="hover:text-yellow-300 transition">🎒 Meus Cosméticos</a></li>
                     <li><a href="{{ route('transactions.index') }}" class="hover:text-yellow-300 transition">📜 Histórico</a></li>
                 @endauth
+
                 <li><a href="#" class="hover:text-yellow-300 transition">Sobre</a></li>
             </ul>
 
@@ -35,14 +38,19 @@
                 @auth
                     {{-- Saldo --}}
                     <div class="flex items-center gap-2 bg-blue-600 px-3 py-2 rounded-lg shadow-md">
-                        <span class="font-medium">💰 {{ auth()->user()->vbucks ?? 0 }} V-Bucks</span>
+                        <span class="font-medium">
+                            💰 {{ auth()->user()->vbucks ?? 0 }} V-Bucks
+                        </span>
                     </div>
 
                     {{-- Nome do usuário --}}
-                    <span class="hidden sm:inline font-semibold">Olá, {{ Auth::user()->name ?? 'Usuário' }}</span>
+                    <span class="hidden sm:inline font-semibold">
+                        Olá, {{ Auth::user()->name ?? 'Usuário' }}
+                    </span>
 
                     {{-- Logout --}}
-                    <form method="POST" action="{{ route('logout') }}" onsubmit="return confirm('Deseja realmente sair?')" class="inline">
+                    <form method="POST" action="{{ route('logout') }}" 
+                          onsubmit="return confirm('Deseja realmente sair?')" class="inline">
                         @csrf
                         <button type="submit"
                             class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition">
@@ -52,7 +60,7 @@
                 @else
                     {{-- Login --}}
                     <a href="{{ route('login') }}"
-                        class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+                       class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
                         Entrar
                     </a>
                 @endauth
@@ -60,23 +68,29 @@
         </div>
 
         {{-- 🔹 Barra de filtros rápida (fixa abaixo da navbar) --}}
-        @if(request()->routeIs('cosmetics.index'))
-        <div class="bg-blue-600 text-white px-6 py-3 text-sm shadow-inner">
-            <form method="GET" action="{{ route('cosmetics.index') }}" class="max-w-7xl mx-auto flex flex-wrap gap-2 items-center justify-between">
-                {{-- Campo de busca --}}
-                <input type="text" name="name" value="{{ request('name') }}" placeholder="Buscar por nome..."
-                    class="w-52 md:w-72 rounded-md px-3 py-1.5 text-sm text-gray-900 focus:ring-2 focus:ring-yellow-300">
+{{-- 🔹 Barra de filtros moderna --}}
+@if(request()->routeIs('cosmetics.index'))
+    <div class="bg-gray-100 text-gray-800 px-6 py-4 border-t border-b border-blue-200 shadow-sm backdrop-blur">
+        <form method="GET" action="{{ route('cosmetics.index') }}" 
+              class="max-w-7xl mx-auto flex flex-wrap gap-3 items-center justify-between">
 
-                {{-- Tipo --}}
-                <select name="type" class="rounded-md text-gray-800 px-2 py-1">
+            {{-- Campo de busca --}}
+            <div class="flex items-center gap-2">
+                <input type="text" name="name" value="{{ request('name') }}" 
+                       placeholder="🔍 Buscar por nome..."
+                       class="w-60 md:w-80 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition">
+            </div>
+
+            {{-- Tipo e raridade --}}
+            <div class="flex flex-wrap gap-2">
+                <select name="type" class="filter-select">
                     <option value="">Tipo</option>
                     <option value="outfit" @selected(request('type')==='outfit')>Outfit</option>
                     <option value="backpack" @selected(request('type')==='backpack')>Backpack</option>
                     <option value="pickaxe" @selected(request('type')==='pickaxe')>Pickaxe</option>
                 </select>
 
-                {{-- Raridade --}}
-                <select name="rarity" class="rounded-md text-gray-800 px-2 py-1">
+                <select name="rarity" class="filter-select">
                     <option value="">Raridade</option>
                     <option value="common" @selected(request('rarity')==='common')>Common</option>
                     <option value="uncommon" @selected(request('rarity')==='uncommon')>Uncommon</option>
@@ -84,37 +98,43 @@
                     <option value="epic" @selected(request('rarity')==='epic')>Epic</option>
                     <option value="legendary" @selected(request('rarity')==='legendary')>Legendary</option>
                 </select>
+            </div>
 
-                {{-- Novos / Loja / Promoção --}}
-                <div class="flex items-center gap-3">
-                    <label class="flex items-center gap-1">
-                        <input type="checkbox" name="is_new" value="1" @checked(request('is_new')) class="rounded">
-                        <span>Novo</span>
-                    </label>
-                    <label class="flex items-center gap-1">
-                        <input type="checkbox" name="is_shop" value="1" @checked(request('is_shop')) class="rounded">
-                        <span>Loja</span>
-                    </label>
-                    <label class="flex items-center gap-1">
-                        <input type="checkbox" name="on_sale" value="1" @checked(request('on_sale')) class="rounded">
-                        <span>Promoção</span>
-                    </label>
-                </div>
+            {{-- Checkboxes --}}
+            <div class="flex flex-wrap items-center gap-4">
+                <label class="flex items-center gap-1 text-sm font-medium">
+                    <input type="checkbox" name="is_new" value="1" @checked(request('is_new')) class="checkbox-filter">
+                    <span>Novo</span>
+                </label>
+                <label class="flex items-center gap-1 text-sm font-medium">
+                    <input type="checkbox" name="is_shop" value="1" @checked(request('is_shop')) class="checkbox-filter">
+                    <span>Loja</span>
+                </label>
+                <label class="flex items-center gap-1 text-sm font-medium">
+                    <input type="checkbox" name="on_sale" value="1" @checked(request('on_sale')) class="checkbox-filter">
+                    <span>Promoção</span>
+                </label>
+                <label class="flex items-center gap-1 text-sm font-medium">
+                    <input type="checkbox" name="is_bundle" value="1" @checked(request('is_bundle')) class="checkbox-filter">
+                    <span>Bundles</span>
+                </label>
+            </div>
 
-                {{-- Botões --}}
-                <div class="flex items-center gap-2">
-                    <button type="submit"
-                        class="bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold px-4 py-1.5 rounded-md transition">
-                        Filtrar
-                    </button>
-                    <a href="{{ route('cosmetics.index') }}"
-                        class="text-gray-200 hover:text-white underline text-sm">
-                        Limpar
-                    </a>
-                </div>
-            </form>
-        </div>
-        @endif
+            {{-- Botões --}}
+            <div class="flex items-center gap-2">
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow transition">
+                    Filtrar
+                </button>
+                <a href="{{ route('cosmetics.index') }}"
+                   class="text-blue-600 hover:text-blue-800 underline text-sm font-medium transition">
+                    Limpar
+                </a>
+            </div>
+        </form>
+    </div>
+@endif
+
     </nav>
 
     {{-- 🔹 Conteúdo principal (com compensação do header fixo) --}}

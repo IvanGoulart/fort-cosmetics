@@ -25,4 +25,15 @@ class Cosmetic extends Model
                     ->withTimestamps()
                     ->withPivot('returned');
     }
+
+    public function items()
+    {
+        return $this->hasMany(Cosmetic::class, 'bundle_id'); // supondo que os itens tenham um bundle_id
+    }
+
+    public function bundle()
+    {
+        // O bundle “pai” deste cosmético (se ele for um item dentro de um bundle)
+        return $this->belongsTo(Cosmetic::class, 'bundle_id');
+    }
 }

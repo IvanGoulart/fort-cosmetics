@@ -8,4 +8,11 @@
 @source "../../vendor/laravel/jetstream/resources/js/**/*.js";
 @source "../../vendor/laravel/jetstream/resources/css/**/*.css";
 @source "../../vendor/laravel/breeze/resources/views/**/*.blade.php";
-@source "../../vendor/laravel/breeze/resources/js/**/*.js";                         
+@source "../../vendor/laravel/breeze/resources/js/**/*.js";
+
+
+
+/* 🔖 Badge visual padrão (todas as etiquetas usam o mesmo estilo) */
+.badge-tag {
+    @apply text-white text-xs font-bold px-2 py-1 rounded shadow;
+}
