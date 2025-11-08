@@ -67,25 +67,28 @@
         @endif
 
         {{-- 🛍️ Botão de compra / status --}}
-        <div class="flex justify-center mb-6">
-            @auth
-                @if(in_array($cosmetic->id, $ownedCosmetics ?? []))
-                    <span class="bg-green-100 text-green-800 text-sm font-semibold px-4 py-2 rounded-full">
-                        ✅ Já adquirido
-                    </span>
+        @if($modo !== 'historico')
+            {{-- Botões normais (compra, devolução etc) --}}
+            <div class="flex justify-center">
+                @auth
+                    @if(in_array($cosmetic->id, $ownedCosmetics ?? []))
+                        <span class="bg-green-100 text-green-800 text-sm font-semibold px-4 py-2 rounded-full">
+                            ✅ Já adquirido
+                        </span>
+                    @else
+                        <form method="POST" action="{{ route('buy', ['id' => $cosmetic->id]) }}">
+                            @csrf
+                            <button type="submit"
+                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+                                Comprar
+                            </button>
+                        </form>
+                    @endif
                 @else
-                    <form method="POST" action="{{ route('buy', ['id' => $cosmetic->id]) }}">
-                        @csrf
-                        <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg transition">
-                            Comprar
-                        </button>
-                    </form>
-                @endif
-            @else
-                <p class="text-gray-500 italic text-sm">Faça login para comprar este item.</p>
-            @endauth
-        </div>
+                    <p class="text-gray-500 italic text-sm">Faça login para comprar este item.</p>
+                @endauth
+            </div>
+        @endif
 
         {{-- 🔙 Botão de voltar --}}
         <div class="text-center">

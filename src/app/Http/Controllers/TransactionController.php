@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use App\Models\Transaction;
+use App\Services\TransactionService;
 
 class TransactionController extends Controller
 {
+    protected TransactionService $transactionService;
+
+    public function __construct(TransactionService $transactionService)
+    {
+        $this->transactionService = $transactionService;
+    }
+
     public function index()
     {
-        $transactions = Transaction::where('user_id', Auth::id())
-            ->with('cosmetic')
-            ->orderByDesc('executed_at')
-            ->paginate(10);
+        $transactions = $this->transactionService->getUserTransactions();
 
         return view('transactions.index', compact('transactions'));
     }

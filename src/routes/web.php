@@ -10,8 +10,8 @@ use App\Http\Controllers\TransactionController;
 
 Route::get('/register', [RegisteredUserController::class, 'create'])->middleware('guest')->name('register');
 Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest');
-Route::get('/usuarios', [App\Http\Controllers\UserController::class, 'index'])
-    ->name('users.index');
+Route::get('/usuarios', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+Route::get('/usuarios/{id}', [App\Http\Controllers\UserController::class, 'show'])->name('users.show');
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->middleware('guest')->name('login');
 Route::post('/login', [LoginController::class, 'login'])->middleware('guest');

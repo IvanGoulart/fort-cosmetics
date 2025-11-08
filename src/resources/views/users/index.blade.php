@@ -31,10 +31,10 @@
                 @endif
 
                 {{-- Detalhes / futuro perfil --}}
-                <a href="#"
-                   class="inline-block mt-3 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-semibold px-3 py-1 rounded-md transition">
+                <a href="{{ route('users.show', $user->id) }}"
+                class="inline-block mt-3 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-3 py-1 rounded-md transition">
                     Ver perfil
-                </a>
+                </a>               
             </div>
         @empty
             <p class="col-span-full text-center text-gray-500 py-10">

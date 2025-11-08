@@ -1,3 +1,6 @@
+@php
+    $modo = $modo ?? 'padrao'; // valores possíveis: 'padrao' ou 'historico'
+@endphp
 <div class="relative bg-white shadow rounded-lg text-center transition hover:shadow-lg overflow-visible">
 
     {{-- 🖼️ Imagem com fundo e contraste melhorado --}}
@@ -72,23 +75,26 @@
             </div>
         @endif
 
-        {{-- 🛍️ Botão de compra --}}
-        @auth
-            @if(in_array($item->id, $ownedCosmetics))
-                <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
-                    ✅ Já adquirido
-                </span>
+        {{-- 🛍️ Botão de compra (somente no modo padrão) --}}
+        @if($modo === 'padrao')
+            @auth
+                @if(in_array($item->id, $ownedCosmetics))
+                    <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
+                        ✅ Já adquirido
+                    </span>
+                @else
+                    <form method="POST" action="{{ route('buy', ['id' => $item->id]) }}">
+                        @csrf
+                        <button type="submit"
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded text-sm font-semibold transition">
+                            Comprar
+                        </button>
+                    </form>
+                @endif
             @else
-                <form method="POST" action="{{ route('buy', ['id' => $item->id]) }}">
-                    @csrf
-                    <button type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded text-sm font-semibold transition">
-                        Comprar
-                    </button>
-                </form>
-            @endif
-        @else
-            <p class="text-sm text-gray-400 italic">Faça login para comprar</p>
-        @endauth
+                <p class="text-sm text-gray-400 italic">Faça login para comprar</p>
+            @endauth
+        @endif
+
     </div>
 </div>
