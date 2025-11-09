@@ -7,10 +7,8 @@
     
     {{-- 🖼️ Imagem destacada com fundo escuro e gradiente --}}
     <div class="relative w-full h-96 bg-gray-700 flex items-center justify-center overflow-hidden">
-        {{-- Gradiente radial de contraste --}}
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.15),rgba(0,0,0,0.5))]"></div>
 
-        {{-- Imagem principal --}}
         <img 
             src="{{ $cosmetic->image ?? asset('images/default.png') }}" 
             alt="{{ $cosmetic->name ?? 'Cosmético' }}" 
@@ -66,34 +64,53 @@
             </div>
         @endif
 
-        {{-- 🛍️ Botão de compra / status --}}
-        @if($modo !== 'historico')
-            {{-- Botões normais (compra, devolução etc) --}}
-            <div class="flex justify-center">
-                @auth
-                    @if(in_array($cosmetic->id, $ownedCosmetics ?? []))
-                        <span class="bg-green-100 text-green-800 text-sm font-semibold px-4 py-2 rounded-full">
-                            ✅ Já adquirido
+        {{-- 🛍️ Ações de compra / devolução --}}
+        <div class="flex justify-center mt-6">
+            @auth
+                {{-- ✅ Item já comprado e ativo --}}
+                @if($owned && !$returned)
+                    @if($cosmetic->bundle_id)
+                        {{-- 🔒 Item faz parte de um bundle --}}
+                        <span class="bg-yellow-100 text-yellow-800 text-sm font-semibold px-4 py-2 rounded-lg shadow-sm">
+                            ⚠️ Este item pertence a um bundle e não pode ser devolvido separadamente.
                         </span>
                     @else
-                        <form method="POST" action="{{ route('buy', ['id' => $cosmetic->id]) }}">
+                        {{-- 🧾 Item individual pode ser devolvido --}}
+                        <form method="POST" action="{{ route('refund', $cosmetic->id) }}">
                             @csrf
                             <button type="submit"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg transition">
-                                Comprar
+                                class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+                                Devolver
                             </button>
                         </form>
                     @endif
+
+                {{-- 🔄 Item devolvido --}}
+                @elseif($returned)
+                    <span class="bg-gray-200 text-gray-600 text-sm font-semibold px-4 py-2 rounded-full">
+                        🔄 Item devolvido
+                    </span>
+
+                {{-- 🛒 Item ainda não comprado --}}
                 @else
-                    <p class="text-gray-500 italic text-sm">Faça login para comprar este item.</p>
-                @endauth
-            </div>
-        @endif
+                    <form method="POST" action="{{ route('buy', ['id' => $cosmetic->id]) }}">
+                        @csrf
+                        <button type="submit"
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+                            Comprar
+                        </button>
+                    </form>
+                @endif
+            @else
+                <p class="text-gray-500 italic text-sm">Faça login para comprar este item.</p>
+            @endauth
+        </div>
 
         {{-- 🔙 Botão de voltar --}}
-        <div class="text-center">
-            <a href="{{ url()->previous() }}" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-5 py-2 rounded-md transition">
-            🔙 Voltar ao catálogo
+        <div class="text-center mt-8">
+            <a href="{{ url()->previous() }}" 
+               class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-5 py-2 rounded-md transition">
+                🔙 Voltar
             </a>
         </div>
     </div>
