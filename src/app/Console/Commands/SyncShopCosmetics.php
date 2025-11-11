@@ -80,7 +80,7 @@ class SyncShopCosmetics extends Command
 
                 $count++;
 
-                // 🧩 Adiciona itens dentro do bundle (brItems, cars, tracks, instruments)
+                // Adiciona itens dentro do bundle (brItems, cars, tracks, instruments)
                 $bundleItems = $entry['brItems']
                     ?? $entry['cars']
                     ?? $entry['tracks']
@@ -119,7 +119,7 @@ class SyncShopCosmetics extends Command
                 continue; // pula o resto do loop
             }
 
-            // --- 🎨 Itens individuais (fora de bundles) ---
+            // --- Itens individuais (fora de bundles) ---
             $cosmetics = $entry['brItems']
                 ?? $entry['cars']
                 ?? $entry['tracks']

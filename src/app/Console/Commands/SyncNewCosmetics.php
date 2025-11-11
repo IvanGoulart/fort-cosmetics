@@ -13,7 +13,7 @@ class SyncNewCosmetics extends Command
 
     public function handle()
     {
-        $this->info('✨ Sincronizando cosméticos novos...');
+        $this->info('* Sincronizando cosméticos novos...');
 
         // Endpoint correto e headers para evitar bloqueio
         $response = Http::withHeaders([

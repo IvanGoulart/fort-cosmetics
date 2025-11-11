@@ -29,8 +29,6 @@
                     <li><a href="{{ route('my.cosmetics') }}" class="hover:text-yellow-300 transition">🎒 Meus Cosméticos</a></li>
                     <li><a href="{{ route('transactions.index') }}" class="hover:text-yellow-300 transition">📜 Histórico</a></li>
                 @endauth
-
-                <li><a href="#" class="hover:text-yellow-300 transition">Sobre</a></li>
                 <li><a href="{{ route('users.index') }}" class="hover:text-yellow-300 transition">👥 Comunidade</a></li>
 
             </ul>
