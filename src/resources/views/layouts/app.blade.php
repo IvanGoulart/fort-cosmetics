@@ -121,7 +121,18 @@
                     <span>Bundles</span>
                 </label>
             </div>
-
+            <div class="flex flex-col">
+                <label class="text-sm font-medium text-gray-700 mb-1">
+                    📅 Data de Inclusão
+                </label>
+                <div class="flex gap-2">
+                    <input type="date" name="date_start" value="{{ request('date_start') }}"
+                        class="filter-select text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-400">
+                    <span class="text-gray-600 text-sm self-center">até</span>
+                    <input type="date" name="date_end" value="{{ request('date_end') }}"
+                        class="filter-select text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-400">
+                </div>
+            </div>           
             {{-- Botões --}}
             <div class="flex items-center gap-2">
                 <button type="submit"

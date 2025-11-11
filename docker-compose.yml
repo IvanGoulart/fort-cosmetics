@@ -1,10 +1,11 @@
 version: "3.8"
 
 services:
+  # 🧩 Aplicação Laravel (PHP)
   app:
     build:
       context: ./src
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile   # ✅ não precisa do "./" extra
     container_name: fortsync_app
     ports:
       - "8000:8000"
@@ -20,6 +21,25 @@ services:
       DB_USERNAME: fortuser
       DB_PASSWORD: fortpass
 
+  # 🕒 Scheduler (executa schedule:run a cada minuto)
+  scheduler:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    container_name: fortsync_scheduler
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    depends_on:
+      - app
+    command: >
+      sh -c "while true; do
+        php artisan schedule:run >> storage/logs/scheduler.log 2>&1;
+        sleep 60;
+      done"
+    restart: unless-stopped
+
+  # 🐘 Banco de dados MySQL
   db:
     image: mysql:8.0
     container_name: fortsync_db

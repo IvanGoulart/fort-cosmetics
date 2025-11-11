@@ -42,6 +42,18 @@ class CosmeticService
             $query->where('type', 'bundle');
         }
 
+        // 🔹 Filtro por intervalo de datas
+        if ($request->filled('date_start') && $request->filled('date_end')) {
+            $query->whereBetween('created_at', [
+                $request->date_start . ' 00:00:00',
+                $request->date_end . ' 23:59:59',
+            ]);
+        } elseif ($request->filled('date_start')) {
+            $query->whereDate('created_at', '>=', $request->date_start);
+        } elseif ($request->filled('date_end')) {
+            $query->whereDate('created_at', '<=', $request->date_end);
+        }
+
         return $query
             ->with('items')
             ->orderBy('name')
