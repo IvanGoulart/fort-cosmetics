@@ -30,7 +30,9 @@ Antes de começar, verifique se você possui instalado:
    composer install
    npm install
    npm run dev
+   php artisan migrate
    http://localhost:8000
+   
 🧠 Tecnologias utilizadas
 Backend
 
