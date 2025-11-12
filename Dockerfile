@@ -19,6 +19,8 @@ COPY src .
 # Gera o build de produção (Tailwind + Vite)
 RUN npm run build
 
+RUN npm ci --omit=dev && npm run build
+
 # ---------------------------
 # 🐘 Etapa 2 — Backend (Laravel + PHP)
 # ---------------------------
@@ -46,9 +48,11 @@ RUN composer install --no-dev --optimize-autoloader
 
 # Ajusta permissões
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chmod -R 775 storage bootstrap/cache
 
 # Gera caches do Laravel (configurações, rotas e views)
 RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
+
 
 # Expõe a porta padrão do Laravel
 EXPOSE 8000
