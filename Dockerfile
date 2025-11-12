@@ -21,7 +21,7 @@ RUN composer install --no-dev --optimize-autoloader
 
 # 🎨 7. Instala dependências frontend (Vite) e gera assets
 RUN if [ -f package.json ]; then \
-      npm ci --omit=dev && npm run build; \
+      npm install && npm run build; \
     else \
       echo "Nenhum package.json encontrado, pulando build frontend"; \
     fi
