@@ -12,8 +12,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # 🏠 Define diretório de trabalho
 WORKDIR /var/www
 
-# 📋 Copia os arquivos da aplicação (ajuste conforme sua estrutura)
-COPY src/ ./   # ⬅️ se seu Laravel está dentro da pasta src/
+# 📋 Copia todos os arquivos do projeto Laravel (na raiz)
+COPY . ./
 
 # 📦 Instala dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
