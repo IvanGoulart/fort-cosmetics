@@ -19,8 +19,6 @@ COPY src .
 # Gera o build de produção (Tailwind + Vite)
 RUN npm run build
 
-RUN npm ci --omit=dev && npm run build
-
 # ---------------------------
 # 🐘 Etapa 2 — Backend (Laravel + PHP)
 # ---------------------------
