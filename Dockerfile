@@ -20,15 +20,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # 🏠 Define diretório de trabalho
 WORKDIR /var/www
 
-# 📋 Copia os arquivos da aplicação (o Docker Compose já monta o volume)
-COPY . /var/www
+# 📋 Copia apenas os arquivos do Laravel (que estão em src/)
+COPY src/ ./
 
 # 🧹 Ajusta permissões de cache e logs
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache || true
 
-# ⚙️ Exemplo: expõe porta (caso queira rodar php artisan serve)
-EXPOSE 8000
+# ⚙️ Expõe a porta (informativo)
+EXPOSE 8080
 
-# 🧩 Comando padrão (usado pelo container "app")
+# 🔑 Gera APP_KEY automaticamente se não existir e limpa cache
+RUN php artisan key:generate --force || true \
+ && php artisan config:clear || true
 
+# 🚀 Comando padrão para rodar o Laravel
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
