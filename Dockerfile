@@ -1,26 +1,28 @@
-# 🧱 Imagem base com PHP 8.3 e extensões recomendadas
+# 🧱 1. Imagem base
 FROM php:8.3-fpm
 
-# 📦 Instala dependências do sistema
+# 📦 2. Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
     git unzip curl libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# 🧰 Instala o Composer globalmente
+# 🎼 3. Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 🏠 Define diretório de trabalho
+# 🏠 4. Define o diretório de trabalho
 WORKDIR /var/www
 
+# 📋 5. Copia o código Laravel (agora sim!)
 COPY src/ /var/www/
 
-# 📦 Instala dependências do Laravel
+# 🧩 6. Instala dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# 🔑 Gera chave e limpa cache
-RUN php artisan key:generate --force && php artisan config:cache && php artisan migrate --force || true
-# ⚙️ Expor porta dinâmica
-EXPOSE 8080
+# ⚙️ 7. Gera chave, limpa cache e executa migrations
+RUN php artisan key:generate --force \
+    && php artisan config:cache \
+    && php artisan migrate --force || true
 
-# 🚀 Comando padrão
-CMD php artisan serve --host=0.0.0.0 --port=$PORT
+# 🚪 8. Expõe a porta e inicia o servidor
+EXPOSE 8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
