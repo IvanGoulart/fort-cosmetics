@@ -26,4 +26,4 @@ RUN php artisan key:generate --force || true \
 EXPOSE 8080
 
 # 🚀 Comando padrão
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
+CMD php artisan serve --host=0.0.0.0 --port=$PORT
