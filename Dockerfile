@@ -26,9 +26,6 @@ RUN if [ -f package.json ]; then \
       echo "Nenhum package.json encontrado, pulando build frontend"; \
     fi
 
-# 🧾 8. Copia .env se existir localmente
-COPY src/.env /var/www/.env
-
 # ⚙️ 9. Gera chave, cache e roda migrations
 RUN php artisan key:generate --force || true \
     && php artisan config:cache || true \
