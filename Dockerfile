@@ -12,18 +12,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # 🏠 Define diretório de trabalho
 WORKDIR /var/www
 
-# 📋 Copia o código Laravel (que está em src/)
-COPY src/ ./
+# 📋 Copia os arquivos da aplicação (ajuste conforme sua estrutura)
+COPY src/ ./   # ⬅️ se seu Laravel está dentro da pasta src/
 
 # 📦 Instala dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
 
-# 🔑 Gera APP_KEY e limpa cache (não quebra se já existir)
+# 🔑 Gera APP_KEY e limpa cache
 RUN php artisan key:generate --force || true \
  && php artisan config:clear || true
 
 # ⚙️ Expor a porta dinâmica do Railway
 EXPOSE 8080
 
-# 🚀 Comando padrão para rodar o Laravel
+# 🚀 Comando padrão
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT}"]
