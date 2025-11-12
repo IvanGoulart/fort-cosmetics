@@ -9,7 +9,7 @@ COPY src/package*.json ./
 COPY src/vite.config.js ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 COPY src .
-RUN npm ci --omit=dev && npm run build
+RUN npm ci && npm run build
 
 # ---------------------------
 # 🐘 Etapa 2 — Backend (Laravel + PHP)
