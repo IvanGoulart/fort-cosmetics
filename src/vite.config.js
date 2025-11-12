@@ -1,34 +1,19 @@
-import { defineConfig } from 'vite'
-import laravel from 'laravel-vite-plugin'
-import path from 'path'
-import tailwindcss from '@tailwindcss/vite'
-
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  root: '.', // 👈 raiz atual (onde está este arquivo)
+  server: {
+    host: '127.0.0.1',   // 👈 Força IPv4, evita o [::]
+    port: 5173,
+    strictPort: true,
+    origin: 'http://127.0.0.1:5173', // 👈 Corrige a URL que o Laravel usa
+  },
   plugins: [
-    tailwindcss(),
     laravel({
-      input: [
-        'resources/css/app.css',
-        'resources/js/app.js',
-      ],
+      input: ['resources/css/app.css', 'resources/js/app.js'],
       refresh: true,
     }),
+    tailwindcss(),
   ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'resources/js'),
-    },
-  },
-  build: {
-    outDir: '../public/build', // 👈 envia pro Laravel
-    emptyOutDir: true,
-    manifest: true,
-    rollupOptions: {
-      input: {
-        app: path.resolve(__dirname, 'resources/js/app.js'),
-      },
-    },
-  },
-})
+});

@@ -1,36 +1,53 @@
-# 🧱 1. Imagem base
+# ---------------------------
+# 🧱 Etapa 1 — Build do frontend (Vite + Tailwind)
+# ---------------------------
+FROM node:20 AS frontend
+
+WORKDIR /app
+
+# Copia dependências e instala
+COPY package*.json ./
+RUN npm ci
+
+# Copia o restante do código
+COPY . .
+
+# Compila o Vite (gera public/build)
+RUN npm run build
+
+# ---------------------------
+# 🐘 Etapa 2 — Backend (Laravel + PHP)
+# ---------------------------
 FROM php:8.3-fpm
 
-# 📦 2. Instala dependências do sistema + Node.js
+# Instala dependências necessárias
 RUN apt-get update && apt-get install -y \
-    git unzip curl nodejs npm \
-    libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip \
+    git unzip curl libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# 🎼 3. Instala Composer
+# Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 🏠 4. Define diretório de trabalho
+# Define diretório de trabalho
 WORKDIR /var/www
 
-# 📋 5. Copia o código Laravel
-COPY src/ /var/www/
+# Copia o código-fonte do Laravel
+COPY . .
 
-# 🧩 6. Instala dependências PHP
+# Copia os assets gerados pelo Vite
+COPY --from=frontend /app/public/build ./public/build
+
+# Instala dependências PHP (sem dev)
 RUN composer install --no-dev --optimize-autoloader
 
-# 🎨 7. Instala dependências frontend (Vite) e gera assets
-RUN if [ -f package.json ]; then \
-      npm install && npm run build; \
-    else \
-      echo "Nenhum package.json encontrado, pulando build frontend"; \
-    fi
+# Ajusta permissões
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# ⚙️ 9. Gera chave, cache e roda migrations
-RUN php artisan key:generate --force || true \
-    && php artisan config:cache || true \
-    && php artisan migrate --force || true
+# Cacheia as configurações do Laravel
+RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
 
-# 🚪 10. Expõe porta e inicia Laravel
+# Expõe a porta 8000 (Railway usa a variável $PORT)
 EXPOSE 8000
+
+# 🚀 Executa migrações e inicia o servidor Laravel
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}

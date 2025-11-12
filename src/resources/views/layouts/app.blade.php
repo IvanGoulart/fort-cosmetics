@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'FortCosmetics 🎮')</title>
-
-    {{-- CSS e JS gerados pelo Vite (Tailwind + scripts) --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+ @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">

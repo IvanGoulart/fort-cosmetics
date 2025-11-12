@@ -1,18 +1,6 @@
 @import "tailwindcss";
 
-@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
-@source "../../storage/framework/views/*.php";
-@source "../views/**/*.blade.php";
-@source "../js/**/*.js";
-@source "../../vendor/laravel/jetstream/resources/views/**/*.blade.php";
-@source "../../vendor/laravel/jetstream/resources/js/**/*.js";
-@source "../../vendor/laravel/jetstream/resources/css/**/*.css";
-@source "../../vendor/laravel/breeze/resources/views/**/*.blade.php";
-@source "../../vendor/laravel/breeze/resources/js/**/*.js";
-
-
-
-/* 🔖 Badge visual padrão (todas as etiquetas usam o mesmo estilo) */
+/* Exemplo de customização opcional */
 .badge-tag {
-    @apply text-white text-xs font-bold px-2 py-1 rounded shadow;
+  @apply text-white text-xs font-bold px-2 py-1 rounded shadow;
 }
