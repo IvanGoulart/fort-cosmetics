@@ -27,7 +27,7 @@ RUN if [ -f package.json ]; then \
     fi
 
 # 🧾 8. Copia .env se existir localmente
-COPY src/.env /var/www/.env || true
+COPY src/.env /var/www/.env
 
 # ⚙️ 9. Gera chave, cache e roda migrations
 RUN php artisan key:generate --force || true \
