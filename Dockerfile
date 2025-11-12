@@ -19,9 +19,7 @@ COPY src/ ./
 RUN composer install --no-dev --optimize-autoloader
 
 # 🔑 Gera chave e limpa cache
-RUN php artisan key:generate --force || true \
- && php artisan config:clear || true
-
+RUN php artisan key:generate --force && php artisan config:cache && php artisan migrate --force || true
 # ⚙️ Expor porta dinâmica
 EXPOSE 8080
 
