@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'FortCosmetics 🎮')</title>
- @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
@@ -65,85 +67,112 @@
             </div>
         </div>
 
-        {{-- 🔹 Barra de filtros rápida (fixa abaixo da navbar) --}}
-{{-- 🔹 Barra de filtros moderna --}}
-@if(request()->routeIs('cosmetics.index'))
-    <div class="bg-gray-100 text-gray-800 px-6 py-4 border-t border-b border-blue-200 shadow-sm backdrop-blur">
-        <form method="GET" action="{{ route('cosmetics.index') }}" 
-              class="max-w-7xl mx-auto flex flex-wrap gap-3 items-center justify-between">
+        {{-- 🔹 Barra de filtros rápida (fixa abaixo da navbar)  --}}
+        {{-- 🔹 Barra de filtros moderna --}}
+        @if(request()->routeIs('cosmetics.index'))
+        <div x-data="{ open: false }" class="bg-gray-100 border-b border-blue-200 shadow-sm text-gray-800">
 
-            {{-- Campo de busca --}}
-            <div class="flex items-center gap-2">
-                <input type="text" name="name" value="{{ request('name') }}" 
-                       placeholder="🔍 Buscar por nome..."
-                       class="w-60 md:w-80 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800 shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 outline-none transition">
+            {{-- Cabeçalho do Filtro --}}
+            <button 
+                @click="open = !open"
+                class="w-full flex items-center justify-between px-6 py-4 text-left font-semibold 
+                    hover:bg-gray-200 transition text-gray-800">
+                
+                <span class="flex items-center gap-2">
+                    🔍 <span>Filtros</span>
+                </span>
+
+                <span x-show="!open">▼</span>
+                <span x-show="open">▲</span>
+            </button>
+
+            {{-- Conteúdo do filtro --}}
+            <div x-show="open" x-collapse class="px-6 py-6 bg-gray-100 text-gray-800">
+
+                <form method="GET" action="{{ route('cosmetics.index') }}"
+                    class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6 text-gray-800">
+
+                    {{-- Campo de busca --}}
+                    <div class="md:col-span-2">
+                        <input type="text" name="name" value="{{ request('name') }}"
+                            placeholder="Buscar por nome..."
+                            class="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800
+                                placeholder-gray-500 shadow-sm focus:ring-2 focus:ring-blue-400 
+                                focus:border-blue-400 transition">
+                    </div>
+
+                    {{-- Tipo e Raridade --}}
+                    <div class="flex gap-3">
+                        <select name="type" 
+                            class="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm text-gray-800 bg-white">
+                            <option value="">Tipo</option>
+                            <option value="outfit" @selected(request('type')==='outfit')>Outfit</option>
+                            <option value="backpack" @selected(request('type')==='backpack')>Backpack</option>
+                            <option value="pickaxe" @selected(request('type')==='pickaxe')>Pickaxe</option>
+                        </select>
+
+                        <select name="rarity"
+                            class="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm text-gray-800 bg-white">
+                            <option value="">Raridade</option>
+                            <option value="common" @selected(request('rarity')==='common')>Common</option>
+                            <option value="uncommon" @selected(request('rarity')==='uncommon')>Uncommon</option>
+                            <option value="rare" @selected(request('rarity')==='rare')>Rare</option>
+                            <option value="epic" @selected(request('rarity')==='epic')>Epic</option>
+                            <option value="legendary" @selected(request('rarity')==='legendary')>Legendary</option>
+                        </select>
+                    </div>
+
+                    {{-- Checkboxes --}}
+                    <div class="flex flex-wrap items-center gap-4 text-gray-800">
+                        <label class="flex items-center gap-1 text-sm font-medium">
+                            <input type="checkbox" name="is_new" value="1" @checked(request('is_new'))>
+                            <span class="text-gray-800">Novo</span>
+                        </label>
+                        <label class="flex items-center gap-1 text-sm font-medium">
+                            <input type="checkbox" name="is_shop" value="1" @checked(request('is_shop'))>
+                            <span class="text-gray-800">Loja</span>
+                        </label>
+                        <label class="flex items-center gap-1 text-sm font-medium">
+                            <input type="checkbox" name="on_sale" value="1" @checked(request('on_sale'))>
+                            <span class="text-gray-800">Promoção</span>
+                        </label>
+                        <label class="flex items-center gap-1 text-sm font-medium">
+                            <input type="checkbox" name="is_bundle" value="1" @checked(request('is_bundle'))>
+                            <span class="text-gray-800">Bundles</span>
+                        </label>
+                    </div>
+
+                    {{-- Data --}}
+                    <div class="md:col-span-2 text-gray-800">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">📅 Data de Inclusão</label>
+
+                        <div class="flex gap-3">
+                            <input type="date" name="date_start" value="{{ request('date_start') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 bg-white">
+
+                            <span class="self-center text-gray-700 text-sm">até</span>
+
+                            <input type="date" name="date_end" value="{{ request('date_end') }}"
+                                class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 bg-white">
+                        </div>
+                    </div>
+
+                    {{-- Botões --}}
+                    <div class="flex items-center gap-4 md:justify-end">
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg shadow transition">
+                            Filtrar
+                        </button>
+
+                        <a href="{{ route('cosmetics.index') }}"
+                            class="text-blue-600 hover:text-blue-800 underline text-sm font-medium transition">
+                            Limpar
+                        </a>
+                    </div>
+                </form>
             </div>
-
-            {{-- Tipo e raridade --}}
-            <div class="flex flex-wrap gap-2">
-                <select name="type" class="filter-select">
-                    <option value="">Tipo</option>
-                    <option value="outfit" @selected(request('type')==='outfit')>Outfit</option>
-                    <option value="backpack" @selected(request('type')==='backpack')>Backpack</option>
-                    <option value="pickaxe" @selected(request('type')==='pickaxe')>Pickaxe</option>
-                </select>
-
-                <select name="rarity" class="filter-select">
-                    <option value="">Raridade</option>
-                    <option value="common" @selected(request('rarity')==='common')>Common</option>
-                    <option value="uncommon" @selected(request('rarity')==='uncommon')>Uncommon</option>
-                    <option value="rare" @selected(request('rarity')==='rare')>Rare</option>
-                    <option value="epic" @selected(request('rarity')==='epic')>Epic</option>
-                    <option value="legendary" @selected(request('rarity')==='legendary')>Legendary</option>
-                </select>
-            </div>
-
-            {{-- Checkboxes --}}
-            <div class="flex flex-wrap items-center gap-4">
-                <label class="flex items-center gap-1 text-sm font-medium">
-                    <input type="checkbox" name="is_new" value="1" @checked(request('is_new')) class="checkbox-filter">
-                    <span>Novo</span>
-                </label>
-                <label class="flex items-center gap-1 text-sm font-medium">
-                    <input type="checkbox" name="is_shop" value="1" @checked(request('is_shop')) class="checkbox-filter">
-                    <span>Loja</span>
-                </label>
-                <label class="flex items-center gap-1 text-sm font-medium">
-                    <input type="checkbox" name="on_sale" value="1" @checked(request('on_sale')) class="checkbox-filter">
-                    <span>Promoção</span>
-                </label>
-                <label class="flex items-center gap-1 text-sm font-medium">
-                    <input type="checkbox" name="is_bundle" value="1" @checked(request('is_bundle')) class="checkbox-filter">
-                    <span>Bundles</span>
-                </label>
-            </div>
-            <div class="flex flex-col">
-                <label class="text-sm font-medium text-gray-700 mb-1">
-                    📅 Data de Inclusão
-                </label>
-                <div class="flex gap-2">
-                    <input type="date" name="date_start" value="{{ request('date_start') }}"
-                        class="filter-select text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-400">
-                    <span class="text-gray-600 text-sm self-center">até</span>
-                    <input type="date" name="date_end" value="{{ request('date_end') }}"
-                        class="filter-select text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-400">
-                </div>
-            </div>           
-            {{-- Botões --}}
-            <div class="flex items-center gap-2">
-                <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow transition">
-                    Filtrar
-                </button>
-                <a href="{{ route('cosmetics.index') }}"
-                   class="text-blue-600 hover:text-blue-800 underline text-sm font-medium transition">
-                    Limpar
-                </a>
-            </div>
-        </form>
-    </div>
-@endif
-
+        </div>
+        @endif
     </nav>
 
     {{-- 🔹 Conteúdo principal (com compensação do header fixo) --}}
