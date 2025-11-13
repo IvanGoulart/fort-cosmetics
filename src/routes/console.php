@@ -9,7 +9,7 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 // Executar a sincronização da produtos novos 
-Schedule::command('sync:cosmetics-new')->everyMinute();
+Schedule::command('sync:cosmetics-new')->everyTenMinutes();
 
 //Executar a sincronização da loja 
-Schedule::command('sync:cosmetics-shop')->everyMinute();
+Schedule::command('sync:cosmetics-shop')->everyFourMinutes();
