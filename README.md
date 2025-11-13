@@ -76,7 +76,31 @@ Aplicado para desacoplar regras de negócio da camada de persistência, facilita
 🔐 Logs e Scheduler dedicados
 O container fortsync_scheduler executa rotinas automáticas e grava logs individualmente (storage/logs/scheduler.log), facilitando o monitoramento.
 
+🧱 Infraestrutura no Railway
 
+A estrutura criada no Railway conta com:
+
+1. Serviço Docker (Backend + Frontend)
+
+   Build automático a cada push na branch main.
+   Deploy contínuo baseado no Dockerfile do projeto.
+   Servidor Laravel rodando via PHP-FPM.
+   Cache de rotas/configuração gerado no build.
+
+2. Banco de Dados MySQL (Managed)
+
+   Instância MySQL fornecida pelo Railway.
+   Variáveis de ambiente configuradas no painel.
+   Conexão segura e persistente.
+   Migrations executadas automaticamente na primeira execução.
+
+🔄 Fluxo de Deploy Contínuo (CI/CD)
+   O Railway realiza o deploy automaticamente seguindo este pipeline:
+      Ao fazer push na branch main, o Railway inicia o build.
+      A nova imagem é publicada.
+      A aplicação entra no ar sem downtime.
+
+Esse fluxo garante estabilidade, rapidez e previsibilidade na entrega.
 
 
 
