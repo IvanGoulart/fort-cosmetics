@@ -106,12 +106,17 @@
             @endauth
         </div>
 
-        {{-- 🔙 Botão de voltar --}}
-        <div class="text-center mt-8">
-            <a href="{{ url()->previous() }}" 
-               class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-5 py-2 rounded-md transition">
-                🔙 Voltar
-            </a>
+       @php
+            $back = url()->previous();
+            if ($back === url()->current()) {
+                $back = route('cosmetics.index'); // rota segura
+            }
+        @endphp
+
+        <a href="{{ $back }}"
+        class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-5 py-2 rounded-md transition">
+            🔙 Voltar
+        </a>
         </div>
     </div>
 </div>
