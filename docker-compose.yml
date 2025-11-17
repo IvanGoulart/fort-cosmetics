@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # 🧩 Aplicação Laravel
   app:
     build:
       context: .
@@ -10,14 +9,6 @@ services:
     working_dir: /var/www
     ports:
       - "8000:8000"
-    volumes:
-      - ./src:/var/www
-    depends_on:
-      - db
-    command: >
-      sh -c "./entrypoint.sh && php artisan serve --host=0.0.0.0 --port=8000"
-
-  # 🕒 Scheduler (apenas cron do Laravel)
   scheduler:
     build:
       context: .
@@ -28,6 +19,7 @@ services:
       - ./src:/var/www
     depends_on:
       - db
+    entrypoint: [""]
     command: >
       sh -c "while true; do
         php artisan schedule:run >> storage/logs/scheduler.log 2>&1;
@@ -35,7 +27,6 @@ services:
       done"
     restart: unless-stopped
 
-  # 🐘 MySQL
   db:
     image: mysql:8.0
     container_name: fortsync_db

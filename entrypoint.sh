@@ -20,8 +20,9 @@ done
 
 echo "✅ Banco de dados disponível!"
 
-# Permissões
 chmod -R 775 storage bootstrap/cache || true
 
-# Migrations
 php artisan migrate --force || true
+
+# ESTA LINHA É O SEGREDO
+exec "$@"
