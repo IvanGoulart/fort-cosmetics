@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use App\Models\Cosmetic;
+use Illuminate\Support\Facades\Log;
 
 class SyncNewCosmetics extends Command
 {
@@ -14,6 +15,8 @@ class SyncNewCosmetics extends Command
     public function handle()
     {
         $this->info('* Sincronizando cosméticos novos...');
+        Log::info("[Sync] Sincronizando cosméticos novos.");
+
 
         // Endpoint correto e headers para evitar bloqueio
         $response = Http::withHeaders([
@@ -46,7 +49,7 @@ class SyncNewCosmetics extends Command
                 ?? $item['images']['featured']
                 ?? null;
 
-            Cosmetic::updateOrCreate(
+          $teste =  Cosmetic::updateOrCreate(
                 ['api_id' => $item['id']],
                 [
                     'name' => $item['name'] ?? 'Sem nome',

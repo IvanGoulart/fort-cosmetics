@@ -8,8 +8,12 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Executar a sincronização da produtos novos 
-Schedule::command('sync:cosmetics-new')->everyTenMinutes();
+Schedule::command('sync:cosmetics-new')
+    ->everyTenMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();
 
-//Executar a sincronização da loja 
-Schedule::command('sync:cosmetics-shop')->everyFourMinutes();
+Schedule::command('sync:cosmetics-shop')
+    ->everyFourMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();

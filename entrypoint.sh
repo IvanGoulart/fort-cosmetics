@@ -3,7 +3,6 @@ set -e
 
 echo "⏳ Aguardando o banco de dados iniciar..."
 
-# Espera o banco responder antes de continuar
 until php -r "
 try {
     new PDO(
@@ -21,12 +20,8 @@ done
 
 echo "✅ Banco de dados disponível!"
 
-# Garante que as pastas de cache tenham permissão correta
+# Permissões
 chmod -R 775 storage bootstrap/cache || true
 
-# Executa migrações (ignora falha caso já estejam aplicadas)
+# Migrations
 php artisan migrate --force || true
-
-# Inicia o servidor Laravel
-echo "🚀 Iniciando servidor Laravel..."
-php artisan serve --host=0.0.0.0 --port=${PORT:-8000}

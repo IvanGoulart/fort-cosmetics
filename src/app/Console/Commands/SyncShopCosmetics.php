@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use App\Models\Cosmetic;
+use Illuminate\Support\Facades\Log;
 
 class SyncShopCosmetics extends Command
 {
@@ -14,6 +15,8 @@ class SyncShopCosmetics extends Command
     public function handle()
     {
         $this->info('🛒 Atualizando cosméticos da loja...');
+        Log::info("[Sync] Atualizando cosméticos da loja...");
+
 
         $response = Http::withHeaders([
             'User-Agent' => 'Mozilla/5.0 (compatible; FortSync/1.0)',

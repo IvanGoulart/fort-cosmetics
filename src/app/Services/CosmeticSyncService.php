@@ -114,9 +114,10 @@ class CosmeticSyncService
                         : null,
                 ]
             );
-
+            Log::info("[Sync] {$item['name']} sincronizado.");
             $count++;
         }
+            Log::info("[Sync] Total de {$count} cosméticos sincronizados.");
 
         return $count;
     }
