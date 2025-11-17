@@ -5,39 +5,49 @@ FROM node:20 AS frontend
 
 WORKDIR /app
 
-COPY src/package*.json ./
-COPY src/vite.config.js ./
+# Copia dependências e instala
+COPY package*.json ./
 RUN npm ci
 
-COPY src .
+# Copia o restante do código
+COPY . .
+
+# Compila o Vite (gera public/build)
 RUN npm run build
 
-
 # ---------------------------
-# 🐘 Etapa 2 — Backend (Laravel + PHP CLI)
+# 🐘 Etapa 2 — Backend (Laravel + PHP)
 # ---------------------------
-FROM php:8.3-cli
+FROM php:8.3-fpm
 
+# Instala dependências necessárias
 RUN apt-get update && apt-get install -y \
     git unzip curl libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
+# Instala Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+# Define diretório de trabalho
 WORKDIR /var/www
 
-# Copia projeto Laravel
-COPY src ./
+# Copia o código-fonte do Laravel
+COPY . .
 
-# Copia build do Vite
+# Copia os assets gerados pelo Vite
 COPY --from=frontend /app/public/build ./public/build
 
-RUN composer install --no-dev --optimize-autoloader \
-    && chown -R www-data:www-data /var/www \
-    && chmod -R 775 storage bootstrap/cache
+# Instala dependências PHP (sem dev)
+RUN composer install --no-dev --optimize-autoloader
 
-ENV PORT=8080
+# Ajusta permissões
+RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-EXPOSE 8080
+# Cacheia as configurações do Laravel
+RUN php artisan config:cache && php artisan route:cache && php artisan view:cache
 
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=${PORT:-8080}"]
+# Expõe a porta 8000 (Railway usa a variável $PORT)
+EXPOSE 8000
+
+# 🚀 Executa migrações e inicia o servidor Laravel
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
