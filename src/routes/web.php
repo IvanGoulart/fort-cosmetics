@@ -28,3 +28,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
+Route::get('/run-schedule', function () {
+    Artisan::call('schedule:run');
+    return 'ok';
+});
