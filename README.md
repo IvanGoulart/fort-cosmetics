@@ -102,6 +102,10 @@ A estrutura criada no Railway conta com:
 
 Esse fluxo garante estabilidade, rapidez e previsibilidade na entrega.
 
+⏱️ Agendamentos (Scheduler do Laravel)
+
+O projeto utiliza o Laravel Scheduler para executar rotinas automatizadas no ambiente de produção, garantindo que os dados da aplicação estejam sempre atualizados e consistentes. O scheduler roda comandos internos em intervalos pré-definidos, eliminando a necessidade de crons manuais no servidor e tornando o sistema mais confiável e automatizado.
+
 
 
 
