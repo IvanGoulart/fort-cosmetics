@@ -7,43 +7,43 @@ WORKDIR /app
 
 COPY src/package*.json ./
 COPY src/vite.config.js ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+RUN npm ci
 
 COPY src .
 RUN npm run build
 
 
 # ---------------------------
-# 🐘 Etapa 2 — Backend (Laravel + PHP CLI)
+# 🐘 Etapa 2 — Backend (Laravel + PHP-FPM)
 # ---------------------------
-FROM php:8.3-cli
+FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
     git unzip curl libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev zip \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd
 
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
 # Copia projeto Laravel
-COPY src .
+COPY src ./
 
-# Copia o build do Vite para public
+# Copia build do Vite
 COPY --from=frontend /app/public/build ./public/build
 
-# Instala dependências PHP
-RUN composer install --no-dev --optimize-autoloader
+# Instala PHP deps
+RUN composer install --no-dev --optimize-autoloader \
+    && chown -R www-data:www-data /var/www \
+    && chmod -R 775 storage bootstrap/cache
 
-# Permissões necessárias
-RUN chmod -R 775 storage bootstrap/cache && \
-    chown -R www-data:www-data /var/www
+# Railway usa a variável PORT automaticamente
+ENV PORT=8080
 
-# Copia e habilita o entrypoint
+# PHP-FPM escuta em 0.0.0.0:8080
+RUN sed -i 's|listen = /run/php/php8.3-fpm.sock|listen = 0.0.0.0:8080|' /usr/local/etc/php-fpm.d/www.conf
 
-COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+EXPOSE 8080
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+CMD ["php-fpm", "-F"]
