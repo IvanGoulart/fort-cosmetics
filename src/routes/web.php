@@ -28,7 +28,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-Route::get('/run-schedule', function () {
+Route::get('/run-schedule/{token}', function ($token) {
+    if ($token !== env('CRON_TOKEN')) {
+        abort(403, 'Unauthorized');
+    }
+
     Artisan::call('schedule:run');
-    return 'ok';
+
+    return 'Schedule executed at ' . now();
 });
