@@ -9,7 +9,32 @@ use Illuminate\Support\Facades\Log;
 class CosmeticSyncService
 {
     protected string $baseUrl = 'https://fortnite-api.com/v2/cosmetics';
+
     protected string $shopUrl = 'https://fortnite-api.com/v2/shop';
+
+    /**
+     * Extract the best available image from item data
+     *
+     * @param  array  $item  Item data from API
+     * @param  array|null  $entry  Optional entry data for fallback images
+     * @return string|null Image URL or null
+     */
+    protected function extractImage(array $item, ?array $entry = null): ?string
+    {
+        $image = $item['images']['icon']
+            ?? $item['images']['smallIcon']
+            ?? $item['images']['small']
+            ?? $item['images']['large']
+            ?? $item['images']['featured']
+            ?? null;
+
+        // Fallback to entry display asset if available
+        if ($image === null && $entry !== null) {
+            $image = $entry['newDisplayAsset']['renderImages'][0]['image'] ?? null;
+        }
+
+        return $image;
+    }
 
     /**
      * Sincroniza todos os cosméticos (carga completa)
@@ -45,19 +70,14 @@ class CosmeticSyncService
                 continue;
             }
 
-            $image = $item['images']['icon']
-                ?? $item['images']['smallIcon']
-                ?? $item['images']['featured']
-                ?? null;
-
             Cosmetic::updateOrCreate(
                 ['api_id' => $item['id']],
                 [
                     'name' => $item['name'] ?? 'Sem nome',
                     'type' => $item['type']['value'] ?? null,
                     'rarity' => $item['rarity']['value'] ?? null,
-                    'image' => $image,
-                    'price' => rand(100, 1500),
+                    'image' => $this->extractImage($item),
+                    'price' => 0, // Price will be updated when item appears in shop
                     'is_new' => true,
                     'is_shop' => false,
                     'release_date' => isset($item['added'])
@@ -94,19 +114,14 @@ class CosmeticSyncService
                 continue;
             }
 
-            $image = $item['images']['icon']
-                ?? $item['images']['smallIcon']
-                ?? $item['images']['featured']
-                ?? null;
-
             Cosmetic::updateOrCreate(
                 ['api_id' => $item['id']],
                 [
                     'name' => $item['name'] ?? 'Sem nome',
                     'type' => $item['type']['value'] ?? null,
                     'rarity' => $item['rarity']['value'] ?? null,
-                    'image' => $image,
-                    'price' => rand(100, 1500),
+                    'image' => $this->extractImage($item),
+                    'price' => 0, // Price will be updated when item appears in shop
                     'is_new' => false,
                     'is_shop' => false,
                     'release_date' => isset($item['added'])
@@ -114,15 +129,14 @@ class CosmeticSyncService
                         : null,
                 ]
             );
-            Log::info("[Sync] {$item['name']} sincronizado.");
             $count++;
         }
-            Log::info("[Sync] Total de {$count} cosméticos sincronizados.");
+        Log::info("[Sync] Total de {$count} cosméticos sincronizados.");
 
         return $count;
     }
 
-        public function syncShop(): int
+    public function syncShop(): int
     {
         $response = Http::withHeaders([
             'User-Agent' => 'Mozilla/5.0 (compatible; FortSync/1.0)',
@@ -176,12 +190,9 @@ class CosmeticSyncService
                     ?? [];
 
                 foreach ($bundleItems as $item) {
-                    if (empty($item['id'])) continue;
-
-                    $image = $item['images']['icon']
-                        ?? $item['images']['small']
-                        ?? $item['images']['large']
-                        ?? ($entry['newDisplayAsset']['renderImages'][0]['image'] ?? null);
+                    if (empty($item['id'])) {
+                        continue;
+                    }
 
                     Cosmetic::updateOrCreate(
                         ['api_id' => $item['id']],
@@ -192,7 +203,7 @@ class CosmeticSyncService
                             'bundle_id' => $bundle->id,
                             'price' => 0,
                             'regular_price' => 0,
-                            'image' => $image,
+                            'image' => $this->extractImage($item, $entry),
                             'is_shop' => true,
                             'is_new' => false,
                             'release_date' => isset($item['added'])
@@ -214,18 +225,16 @@ class CosmeticSyncService
                 ?? $entry['instruments']
                 ?? null;
 
-            if (!$cosmetics) {
+            if (! $cosmetics) {
                 Log::warning('Entrada sem cosméticos reconhecíveis.', ['entry' => $entry['offerId'] ?? 'unknown']);
+
                 continue;
             }
 
             foreach ($cosmetics as $item) {
-                if (empty($item['id'])) continue;
-
-                $image = $item['images']['icon']
-                    ?? $item['images']['small']
-                    ?? $item['images']['large']
-                    ?? ($entry['newDisplayAsset']['renderImages'][0]['image'] ?? null);
+                if (empty($item['id'])) {
+                    continue;
+                }
 
                 Cosmetic::updateOrCreate(
                     ['api_id' => $item['id']],
@@ -235,7 +244,7 @@ class CosmeticSyncService
                         'rarity' => $item['rarity']['value'] ?? null,
                         'price' => $entry['finalPrice'] ?? 0,
                         'regular_price' => $entry['regularPrice'] ?? $entry['finalPrice'] ?? 0,
-                        'image' => $image,
+                        'image' => $this->extractImage($item, $entry),
                         'is_shop' => true,
                         'is_new' => false,
                         'release_date' => isset($entry['inDate'])

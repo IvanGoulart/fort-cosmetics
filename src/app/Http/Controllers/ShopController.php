@@ -17,10 +17,11 @@ class ShopController extends Controller
     public function index()
     {
         $purchases = $this->shopService->getUserPurchases();
+
         return view('shop.my_cosmetics', compact('purchases'));
     }
 
-    public function buy($id): RedirectResponse
+    public function buy(int $id): RedirectResponse
     {
         $message = $this->shopService->buyCosmetic($id);
 
@@ -31,7 +32,7 @@ class ShopController extends Controller
         return back()->with('error', $message);
     }
 
-    public function refund($id): RedirectResponse
+    public function refund(int $id): RedirectResponse
     {
         $message = $this->shopService->refundCosmetic($id);
 
