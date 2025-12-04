@@ -2,21 +2,21 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Cosmetic;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use App\Models\Cosmetic;
 use Illuminate\Support\Facades\Log;
 
 class SyncNewCosmetics extends Command
 {
     protected $signature = 'sync:cosmetics-new';
+
     protected $description = 'Sincroniza novos cosméticos adicionados recentemente.';
 
     public function handle()
     {
         $this->info('* Sincronizando cosméticos novos...');
-        Log::info("[Sync] Sincronizando cosméticos novos.");
-
+        Log::info('[Sync] Sincronizando cosméticos novos.');
 
         // Endpoint correto e headers para evitar bloqueio
         $response = Http::withHeaders([
@@ -26,6 +26,7 @@ class SyncNewCosmetics extends Command
 
         if ($response->failed()) {
             $this->error('❌ Falha ao acessar a API de cosméticos novos.');
+
             return;
         }
 
@@ -34,6 +35,7 @@ class SyncNewCosmetics extends Command
 
         if (empty($items)) {
             $this->warn('⚠️ Nenhum novo cosmético encontrado.');
+
             return;
         }
 
@@ -41,22 +43,25 @@ class SyncNewCosmetics extends Command
         foreach ($items as $item) {
             if (empty($item['id'])) {
                 $this->warn('⚠️ Item sem ID ignorado.');
+
                 continue;
             }
 
             $image = $item['images']['icon']
                 ?? $item['images']['smallIcon']
+                ?? $item['images']['small']
+                ?? $item['images']['large']
                 ?? $item['images']['featured']
                 ?? null;
 
-          $teste =  Cosmetic::updateOrCreate(
+            Cosmetic::updateOrCreate(
                 ['api_id' => $item['id']],
                 [
                     'name' => $item['name'] ?? 'Sem nome',
                     'type' => $item['type']['value'] ?? null,
                     'rarity' => $item['rarity']['value'] ?? null,
                     'image' => $image,
-                    'price' => rand(100, 1500),
+                    'price' => 0, // Price will be updated when item appears in shop
                     'is_new' => true,
                     'is_shop' => false,
                     'release_date' => isset($item['added'])

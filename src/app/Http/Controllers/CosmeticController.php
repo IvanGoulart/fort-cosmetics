@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CosmeticService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\CosmeticService;
 
 class CosmeticController extends Controller
 {
@@ -26,7 +26,7 @@ class CosmeticController extends Controller
         return view('cosmetics.index', compact('cosmetics', 'ownedCosmetics'));
     }
 
-    public function show($id, Request $request)
+    public function show(int $id, Request $request)
     {
         $cosmetic = \App\Models\Cosmetic::with('items')->findOrFail($id);
 
@@ -40,7 +40,7 @@ class CosmeticController extends Controller
                 ->first();
 
             if ($pivot) {
-                $owned = !$pivot->pivot->returned;
+                $owned = ! $pivot->pivot->returned;
                 $returned = $pivot->pivot->returned;
             }
         }
@@ -68,11 +68,11 @@ class CosmeticController extends Controller
 
         return response()->json([
             'message' => 'Cosmético criado com sucesso!',
-            'data' => $cosmetic
+            'data' => $cosmetic,
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $data = $request->validate([
             'name' => 'required|string',
@@ -89,11 +89,11 @@ class CosmeticController extends Controller
 
         return response()->json([
             'message' => 'Cosmético atualizado com sucesso!',
-            'data' => $cosmetic
+            'data' => $cosmetic,
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(int $id)
     {
         $this->cosmeticService->deleteCosmetic($id);
 
